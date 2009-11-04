@@ -17,9 +17,12 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #
 # CHANGELOG
-# 03/11/2009 - 1.3.1 - Bakes
+# 04/11/2009 - 1.3.2 - Bakes
+# Try/Except for statusftp, in case of error, it will wait until the next 
+# minute before retrying.
+# 04/11/2009 - 1.3.1 - Bakes
 # XML code is now produced through xml.dom.minidocument rather than concatenation. This has a number of advantages.
-# 03/11/2009 - 1.3.0 - Bakes
+# 04/11/2009 - 1.3.0 - Bakes
 # Combined statusftp and status. Use syntax ftp://user:password@host/path/to/status.xml
 # 11/02/2009 - 1.2.7 - xlr8or
 # If masked show masked level instead of real level
@@ -35,7 +38,7 @@
 # Converted to use new event handlers
 
 __author__  = 'ThorN'
-__version__ = '1.3.1'
+__version__ = '1.3.2'
 
 import b3, time, os, StringIO
 import b3.plugin
@@ -188,6 +191,7 @@ class StatusPlugin(b3.plugin.Plugin):
 
   def writeXML(self, xml):
     if self._ftpstatus == True:
+     try:
       self.debug('Uploading XML status to FTP server')
       ftp=FTP(self._ftpinfo['host'],self._ftpinfo['user'],passwd=self._ftpinfo['password'])
       ftp.cwd(os.path.dirname(self._ftpinfo['path']))
@@ -195,6 +199,8 @@ class StatusPlugin(b3.plugin.Plugin):
       ftpfile.write(xml)
       ftpfile.seek(0)
       ftp.storbinary('STOR '+os.path.basename(self._ftpinfo['path']), ftpfile)
+     except:
+      self.debug('FTP transfer failed, waiting 30 seconds before retry')
     else:
       self.debug('Writing XML status to %s', self._outputFile)
       f = file(self._outputFile, 'w')
