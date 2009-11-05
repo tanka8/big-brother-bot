@@ -153,6 +153,11 @@ class DatabaseStorage(Storage):
                 return MySQLdb.connect(host=self.dsnDict['host'], user=self.dsnDict['user'], passwd=self.dsnDict['password'], db=self.dsnDict['path'][1:]) 
             except ImportError, err:
               self.console.critical("%s. You need to install python-myqsldb. Look for 'dependencies' in B3 documentation.",err)
+        elif protocol == 'pymysql':
+            # Alternative, unstable but Pure Python, as such included in the lib folder.
+            # Only supports MySQL server/client protocol 4.1 (afaik).
+            import b3.lib.pymysql as pymysql
+            return pymysql.connect(host=self.dsnDict['host'], user=self.dsnDict['user'], passwd=self.dsnDict['password'], db=self.dsnDict['path'][1:]) 
         elif protocol == 'sqlite':
             # Break it off here
             self.console.critical('SQLite is currently not supported!')
